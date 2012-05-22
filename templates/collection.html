@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title>WS Prototype</title>
+        <script src="/static/js/backbone.js"></script>
+        <script>
+            function open_websocket(){
+                function show_message(message){
+                    var el = document.createElement('div');
+                    el.innerHTML = message;
+                    document.body.appendChild(el);
+                }
+                var ws = new WebSocket(
+                    "ws://127.0.0.1:8888/ws/collections/{{ slug }}");
+                ws.onopen = function() {
+                    show_message('Connected.');
+                }
+                ws.onmessage = function(event) {
+                    show_message(event.data);
+                }
+                ws.onclose = function() {
+                    show_message("Closed.");
+                }
+            }
+        </script>
+    </head>
+    <body onload="open_websocket()">
+        <div id="id_messages">
+        </div>
+    </body>
+</html>

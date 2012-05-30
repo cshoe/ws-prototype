@@ -2,7 +2,6 @@ import datetime
 import mimetypes
 import os
 
-
 from tornado import gen, web, websocket
 import tornadoredis
 
@@ -99,48 +98,3 @@ class CollectionSubHandler(websocket.WebSocketHandler):
             'collection_channel_{}'.format(self.collection_slug))
         self.client.disconnect()
 
-
-class NoCacheStaticFileHandler(web.StaticFileHandler):
-    """
-    Same as Tornado's :py:class:`StaticFileHandler` but never caches anything.
-
-    Courtesy of robmadole.
-
-    """
-    def get(self, path, include_body=True):
-        """
-        See :py:method:`tornado.web.StaticFileHandler.get()`.
-
-        This will always read the file and return a 200, never a 304.
-        """
-        path = self.parse_url_path(path)
-        abspath = os.path.abspath(os.path.join(self.root, path))
-        if not (abspath + os.path.sep).startswith(self.root):
-            raise web.HTTPError(403, "%s is not in root static directory",
-                path)
-        if os.path.isdir(abspath) and self.default_filename is not None:
-            if not self.request.path.endswith("/"):
-                self.redirect(self.request.path + "/")
-                return
-            abspath = os.path.join(abspath, self.default_filename)
-        if not os.path.exists(abspath):
-            raise web.HTTPError(404)
-        if not os.path.isfile(abspath):
-            raise web.HTTPError(403, "%s is not a file", path)
-
-        mime_type, encoding = mimetypes.guess_type(abspath)
-        if mime_type:
-            self.set_header("Content-Type", mime_type)
-
-        self.set_header("Expires", datetime.datetime.utcnow())
-        self.set_header("Cache-Control", "max-age=-1")
-
-        self.set_extra_headers(path)
-
-        with open(abspath, "rb") as file:
-            data = file.read()
-            if include_body:
-                self.write(data)
-            else:
-                assert self.request.method == "HEAD"
-                self.set_header("Content-Length", len(data))

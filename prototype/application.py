@@ -8,7 +8,7 @@ application = web.Application([
     (r'/ws/track', MessageSubHandler),
     (r'/static/(.*)', NoCacheStaticFileHandler, {'path': '../static'}),
     (r'/collections/(?P<collection_slug>[a-z0-9-]+)', CollectionPubHandler),
-    (r'/ws/collections/(?P<collection_slug>[a-z0-9-]+)', CollectionSubHandler),
+    (r'/ws/collections/(?P<collection_slug>[a-z0-9-]+)', CollectionSubHandler)
 ])
 
 if __name__ == '__main__':
